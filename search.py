@@ -119,25 +119,67 @@ def depthFirstSearchToDepth(problem, depth):
             return paths[s]
         if (s in paths.keys() and len(paths[s]) == depth) or depth == 0:
             continue;
-        explored.append(s[0])
-        successors = problem.getSuccessors(s[0])
+        if len(s) == 3:
+            explored.append(s[0])
+            successors = problem.getSuccessors(s[0])
+        else:
+            explored.append(s)
+            successors = problem.getSuccessors(s)
         if depth > 0:
             for successor in successors:
-                if successor[0] not in explored and not stackContainsState(frontier, successor):
+                if successor[0] not in explored and not stackContainsNode(frontier, successor):
                     frontier.append(successor)
                     if s in paths.keys():
                         paths[successor] = list(paths[s])
 
-def stackContainsState(stack, state):
-    for s in stack:
-        if s[0] == state[0]:
+def stackContainsNode(stack, node):
+    for n in stack:
+        if n[0] == node[0]:
             return True
     return False
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.PriorityQueue()
+    frontier.push(problem.getStartState(), heuristic(problem.getStartState(), problem))
+    explored = []
+    paths = {}
+    totalCost = {}
+    while not frontier.isEmpty():
+        s = frontier.pop()
+        if problem.isGoalState(s[0]):
+            return paths[s]
+        if len(s) == 3:
+            explored.append(s[0])
+            successors = problem.getSuccessors(s[0])
+        else:
+            explored.append(s)
+            successors = problem.getSuccessors(s)
+        for successor in successors:
+            if successor[0] not in explored:
+                if s in paths.keys():
+                    paths[successor] = list(paths[s]) + [successor[1]]
+                    totalCost[successor] = totalCost[s] + successor[2]
+                else:
+                    paths[successor] = [successor[1]]
+                    totalCost[successor] = successor[2]
+                insertNodeIntoPriorityQueue(frontier, successor, heuristic, problem, totalCost)
+
+def insertNodeIntoPriorityQueue(queue, node, heuristic, problem, totalCost):
+    shouldAdd = removeNodeInQueueIfExists(queue, node, totalCost)
+    if shouldAdd:
+        queue.push(node, heuristic(node[0], problem) + totalCost[node])
+
+def removeNodeInQueueIfExists(queue, node, totalCost):
+    for n in queue.heap:
+        if n[2][0] == node[0]:
+            if n[2] in totalCost.keys() and totalCost[n[2]] > totalCost[node]:
+                queue.heap.remove(n)
+                return True
+            else:
+                return False
+    return True
 
 # Abbreviations
 bfs = breadthFirstSearch
