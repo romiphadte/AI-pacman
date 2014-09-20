@@ -148,21 +148,28 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return self.getActionHelper(gameState, self.depth, 0)[1]
 
     def getActionHelper(self, gameState, depth, agentIndex):
-        actions = gameState.getLegalActions(agentIndex)
-        if agentIndex == 0:
-            maxAlpha = -99999999
-        else:
-            maxAlpha = 0
-
+        # print("depth: " + str(depth) + " agent index: " + str(agentIndex))
         if depth == 0:
-            return (self.evaluationFunction(gameState), '')
+            # print("eval function")
+            eval_result = self.evaluationFunction(gameState)
+            # print("eval result: " + str(eval_result))
+            return (eval_result, '')
         else:
             if agentIndex == 0:
                 depth -= 1
+                maxAlpha = -99999999
+            else:
+                maxAlpha = 0
             maxAction = ""
             nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+            if gameState.isWin():
+                return (99999999, '')
+            elif gameState.isLose():
+                return (maxAlpha, '')
+            actions = gameState.getLegalActions(agentIndex)
             for action in actions:
                 result = self.getActionHelper(gameState.generateSuccessor(agentIndex, action), depth, nextAgentIndex)
+                # print("result: " + str(result) + " agent index: " + str(agentIndex))
                 if agentIndex == 0:
                     if result[0] > maxAlpha:
                         maxAlpha = result[0]
@@ -170,7 +177,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 else:
                     maxAlpha += 1.0/len(actions) * result[0]
                     maxAction = action
-        return (maxAlpha, maxAction)
+            return (maxAlpha, maxAction)
 
 def betterEvaluationFunction(currentGameState):
     """
