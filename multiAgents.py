@@ -50,6 +50,7 @@ class ReflexAgent(Agent):
 
         "Add more of your code here if you want to"
 
+
         return legalMoves[chosenIndex]
 
     def evaluationFunction(self, currentGameState, action):
@@ -68,14 +69,40 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
+        oldFood = currentGameState.getFood();
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        totalScore=0.0
+        for ghost in newGhostStates:
+          if(manhattanDistance(ghost.getPosition(), newPos)<=1):
+            if(ghost.scaredTimer!=0):
+              totalScore+=2000
+            else:
+              totalScore-=200
+          #totalScore+=manhattanDistance(ghostPos, newPos)/((oldFood.width)+(oldFood.height))
+
+        for capsule in currentGameState.getCapsules():
+          d=manhattanDistance(capsule,newPos)
+          if(d==0):
+            totalScore+=100
+          else:
+            totalScore+=10.0/d
+          
+
+        for x in xrange(oldFood.width):
+          for y in xrange(oldFood.height):
+            if(oldFood[x][y]):
+              d=manhattanDistance((x,y),newPos)
+              if(d==0):
+                totalScore+=100
+              else:
+                totalScore+=1.0/(d*d)
+
+        return totalScore 
 
 def scoreEvaluationFunction(currentGameState):
     """
