@@ -183,7 +183,35 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    evalNum = 0
+    pacmanPosition = currentGameState.getPacmanPosition()
+    foodPositions = currentGameState.getFood().asList()
+    # shouldWeighDistance = True
+    # for foodPosition in foodPositions:
+    #     distance = util.manhattanDistance(pacmanPosition, foodPosition)
+    #     if distance < 3:
+    #         shouldWeighDistance = False
+    # if shouldWeighDistance:
+    minDistance = 10000
+    setMinDistance = False
+    for foodPosition in foodPositions:
+        distance = util.manhattanDistance(pacmanPosition, foodPosition)
+        if distance < minDistance:
+            minDistance = distance
+            setMinDistance = True
+    # print("\nmin distance: " + str(minDistance))
+    # print("num food: " + str(len(foodPositions)))
+    if setMinDistance:
+        evalNum += minDistance
+    evalNum += 1000*currentGameState.getNumFood()
+    evalNum += 10*len(currentGameState.getCapsules())
+    ghostPositions = currentGameState.getGhostPositions()
+    for ghostPosition in ghostPositions:
+        distance = util.manhattanDistance(pacmanPosition, ghostPosition)
+        if distance <= 2:
+            # print("ghost position matters")
+            evalNum = 99999999
+    return evalNum*(-1)
 
 # Abbreviation
 better = betterEvaluationFunction
