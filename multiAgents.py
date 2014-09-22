@@ -148,21 +148,18 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return self.getActionHelper(gameState, self.depth, 0)[1]
 
     def getActionHelper(self, gameState, depth, agentIndex):
-        if depth == 0:
+        if depth == 0 or gameState.isWin() or gameState.isLose():
             eval_result = self.evaluationFunction(gameState)
             return (eval_result, '')
         else:
-            if agentIndex == 0:
+            if agentIndex == gameState.getNumAgents() - 1:
                 depth -= 1
+            if agentIndex == 0:
                 maxAlpha = -99999999
             else:
                 maxAlpha = 0
             maxAction = ''
             nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
-            if gameState.isWin():
-                return (self.evaluationFunction(gameState), '')
-            elif gameState.isLose():
-                return (maxAlpha, '')
             actions = gameState.getLegalActions(agentIndex)
             for action in actions:
                 result = self.getActionHelper(gameState.generateSuccessor(agentIndex, action), depth, nextAgentIndex)
@@ -195,22 +192,20 @@ def betterEvaluationFunction(currentGameState):
     minDistance = 10000
     setMinDistance = False
     for foodPosition in foodPositions:
-        distance = util.manhattanDistance(pacmanPosition, foodPosition)
-        if distance < minDistance:
-            minDistance = distance
+        foodDistance = util.manhattanDistance(pacmanPosition, foodPosition)
+        if foodDistance < minDistance:
+            minDistance = foodDistance
             setMinDistance = True
-    # print("\nmin distance: " + str(minDistance))
-    # print("num food: " + str(len(foodPositions)))
     if setMinDistance:
         evalNum += minDistance
     evalNum += 1000*currentGameState.getNumFood()
     evalNum += 10*len(currentGameState.getCapsules())
     ghostPositions = currentGameState.getGhostPositions()
     for ghostPosition in ghostPositions:
-        distance = util.manhattanDistance(pacmanPosition, ghostPosition)
-        if distance <= 2:
-            # print("ghost position matters")
-            evalNum = 99999999
+        ghostDistance = util.manhattanDistance(pacmanPosition, ghostPosition)
+        if ghostDistance <= 2:
+            evalNum = 9999999999999999
+    print("min distance: " + str(minDistance) + " num food: " + str(len(foodPositions)) + " eval num: " + str(evalNum*(-1)))
     return evalNum*(-1)
 
 # Abbreviation
