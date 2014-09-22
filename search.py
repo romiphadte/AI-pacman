@@ -165,6 +165,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                     paths[successor] = [successor[1]]
                     totalCost[successor] = successor[2]
                 insertNodeIntoPriorityQueue(frontier, successor, heuristic, problem, totalCost)
+    return []
 
 def insertNodeIntoPriorityQueue(queue, node, heuristic, problem, totalCost):
     shouldAdd = removeNodeInQueueIfExists(queue, node, totalCost)
