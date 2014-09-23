@@ -1,15 +1,15 @@
 # search.py
 # ---------
-# Licensing Information:  You are free to use or extend these projects for 
-# educational purposes provided that (1) you do not distribute or publish 
-# solutions, (2) you retain this notice, and (3) you provide clear 
-# attribution to UC Berkeley, including a link to 
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to
 # http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero 
+# The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and 
+# Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
@@ -98,12 +98,89 @@ def iterativeDeepeningSearch(problem):
     Begin with a depth of 1 and increment depth by 1 at every step.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    for i in range(0, 500):
+        actions = depthFirstSearchToDepth(problem, i)
+        if actions:
+            return actions
+
+def depthFirstSearchToDepth(problem, depth):
+    frontier = []
+    paths = {}
+    explored = []
+    frontier.append(problem.getStartState())
+    while (len(frontier) > 0):
+        s = frontier.pop()
+        if s is not problem.getStartState():
+            if s in paths.keys():
+                paths[s].append(s[1])
+            else:
+                paths[s] = [s[1]]
+        if problem.isGoalState(s[0]):
+            return paths[s]
+        if (s in paths.keys() and len(paths[s]) == depth) or depth == 0:
+            continue;
+        if len(s) == 3:
+            explored.append(s[0])
+            successors = problem.getSuccessors(s[0])
+        else:
+            explored.append(s)
+            successors = problem.getSuccessors(s)
+        if depth > 0:
+            for successor in successors:
+                if successor[0] not in explored and not stackContainsNode(frontier, successor):
+                    frontier.append(successor)
+                    if s in paths.keys():
+                        paths[successor] = list(paths[s])
+
+def stackContainsNode(stack, node):
+    for n in stack:
+        if n[0] == node[0]:
+            return True
+    return False
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.PriorityQueue()
+    frontier.push(problem.getStartState(), heuristic(problem.getStartState(), problem))
+    explored = []
+    paths = {}
+    totalCost = {}
+    while not frontier.isEmpty():
+        s = frontier.pop()
+        if problem.isGoalState(s[0]):
+            return paths[s]
+        if len(s) == 3:
+            explored.append(s[0])
+            successors = problem.getSuccessors(s[0])
+        else:
+            explored.append(s)
+            successors = problem.getSuccessors(s)
+        for successor in successors:
+            if successor[0] not in explored:
+                if s in paths.keys():
+                    paths[successor] = list(paths[s]) + [successor[1]]
+                    totalCost[successor] = totalCost[s] + successor[2]
+                else:
+                    paths[successor] = [successor[1]]
+                    totalCost[successor] = successor[2]
+                insertNodeIntoPriorityQueue(frontier, successor, heuristic, problem, totalCost)
+    return []
+
+def insertNodeIntoPriorityQueue(queue, node, heuristic, problem, totalCost):
+    shouldAdd = removeNodeInQueueIfExists(queue, node, totalCost)
+    if shouldAdd:
+        queue.push(node, heuristic(node[0], problem) + totalCost[node])
+
+def removeNodeInQueueIfExists(queue, node, totalCost):
+    for n in queue.heap:
+        if n[2][0] == node[0]:
+            if n[2] in totalCost.keys() and totalCost[n[2]] > totalCost[node]:
+                queue.heap.remove(n)
+                return True
+            else:
+                return False
+    return True
 
 # Abbreviations
 bfs = breadthFirstSearch

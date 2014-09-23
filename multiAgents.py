@@ -12,7 +12,6 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and 
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -164,7 +163,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         return bestMove
 
-
     def maxFunction(self,gameState,depth):
         pdb.set_trace()
         if depth<=0:
@@ -205,7 +203,32 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.getActionHelper(gameState, self.depth, 0)[1]
+
+    def getActionHelper(self, gameState, depth, agentIndex):
+        if depth == 0 or gameState.isWin() or gameState.isLose():
+            eval_result = self.evaluationFunction(gameState)
+            return (eval_result, '')
+        else:
+            if agentIndex == gameState.getNumAgents() - 1:
+                depth -= 1
+            if agentIndex == 0:
+                maxAlpha = -99999999
+            else:
+                maxAlpha = 0
+            maxAction = ''
+            nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+            actions = gameState.getLegalActions(agentIndex)
+            for action in actions:
+                result = self.getActionHelper(gameState.generateSuccessor(agentIndex, action), depth, nextAgentIndex)
+                if agentIndex == 0:
+                    if result[0] > maxAlpha:
+                        maxAlpha = result[0]
+                        maxAction = action
+                else:
+                    maxAlpha += 1.0/len(actions) * result[0]
+                    maxAction = action
+            return (maxAlpha, maxAction)
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -215,8 +238,33 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    evalNum = 0
+    pacmanPosition = currentGameState.getPacmanPosition()
+    foodPositions = currentGameState.getFood().asList()
+    # shouldWeighDistance = True
+    # for foodPosition in foodPositions:
+    #     distance = util.manhattanDistance(pacmanPosition, foodPosition)
+    #     if distance < 3:
+    #         shouldWeighDistance = False
+    # if shouldWeighDistance:
+    minDistance = 10000
+    setMinDistance = False
+    for foodPosition in foodPositions:
+        foodDistance = util.manhattanDistance(pacmanPosition, foodPosition)
+        if foodDistance < minDistance:
+            minDistance = foodDistance
+            setMinDistance = True
+    if setMinDistance:
+        evalNum += minDistance
+    evalNum += 1000*currentGameState.getNumFood()
+    evalNum += 10*len(currentGameState.getCapsules())
+    ghostPositions = currentGameState.getGhostPositions()
+    for ghostPosition in ghostPositions:
+        ghostDistance = util.manhattanDistance(pacmanPosition, ghostPosition)
+        if ghostDistance <= 2:
+            evalNum = 9999999999999999
+    print("min distance: " + str(minDistance) + " num food: " + str(len(foodPositions)) + " eval num: " + str(evalNum*(-1)))
+    return evalNum*(-1)
 
 # Abbreviation
 better = betterEvaluationFunction
-
