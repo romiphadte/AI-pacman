@@ -16,6 +16,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import pdb
 
 from game import Agent
 
@@ -78,12 +79,14 @@ class ReflexAgent(Agent):
 
         totalScore=0.0
         for ghost in newGhostStates:
-          if(manhattanDistance(ghost.getPosition(), newPos)<=1):
+          d=manhattanDistance(ghost.getPosition(), newPos)
+          factor=1
+          if(d<=1):
             if(ghost.scaredTimer!=0):
+              factor=-1
               totalScore+=2000
             else:
               totalScore-=200
-          #totalScore+=manhattanDistance(ghostPos, newPos)/((oldFood.width)+(oldFood.height))
 
         for capsule in currentGameState.getCapsules():
           d=manhattanDistance(capsule,newPos)
@@ -101,8 +104,7 @@ class ReflexAgent(Agent):
                 totalScore+=100
               else:
                 totalScore+=1.0/(d*d)
-
-        return totalScore 
+        return totalScore
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -157,7 +159,38 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        bestScore,bestMove=self.maxFunction(gameState,self.depth)
+
+        return bestMove
+
+
+    def maxFunction(self,gameState,depth):
+        pdb.set_trace()
+        if depth<=0:
+          return self.evaluationFunction(), "noMove"
+        print "this is gameState", gameState
+        moves=gameState.getLegalActions()
+        print "these are moves ", moves
+        scores = [self.minFunction(gameState.generateSuccessor(self.index,move),depth) for move in moves]
+        print "here are the legal moves ", moves, " with scores ", scores
+        bestScore=max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices)
+        return bestScore,moves[chosenIndex]
+
+    def minFunction(self,gameState,depth):
+        pdb.set_trace()
+        for i in xrange(1,gameState.getNumAgents()+1):
+          moves=gameState.getLegalActions(i) #get legal actions. 
+          print "these are moves for ghost ", i, " : ", moves
+          scores =[self.maxFunction(gameState.generateSuccessor(i,move),(depth-1))[0] for move in moves]
+          minScore=min(scores)
+          worstIndices = [index for index in range(len(scores)) if scores[index] == minScore]
+          chosenIndex = random.choice(worstIndices)
+          gameState=gameState.generateSuccessor(i,moves[chosenIndex])   #update the gameStatee with the minimizing choice for agent i.
+        return minScore
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
