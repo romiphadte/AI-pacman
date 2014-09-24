@@ -164,29 +164,28 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return bestMove
 
     def maxFunction(self,gameState,depth):
-        pdb.set_trace()
-        if depth<=0:
-          return self.evaluationFunction(), "noMove"
-        print "this is gameState", gameState
+        if depth==0 or gameState.isWin() or gameState.isLose():
+          return self.evaluationFunction(gameState), "noMove"
+
         moves=gameState.getLegalActions()
-        print "these are moves ", moves
-        scores = [self.minFunction(gameState.generateSuccessor(self.index,move),depth) for move in moves]
-        print "here are the legal moves ", moves, " with scores ", scores
+        scores = [self.minFunction(gameState.generateSuccessor(self.index,move),1, depth) for move in moves]
         bestScore=max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices)
+        chosenIndex = bestIndices[0]
         return bestScore,moves[chosenIndex]
 
-    def minFunction(self,gameState,depth):
-        pdb.set_trace()
-        for i in xrange(1,gameState.getNumAgents()+1):
-          moves=gameState.getLegalActions(i) #get legal actions. 
-          print "these are moves for ghost ", i, " : ", moves
-          scores =[self.maxFunction(gameState.generateSuccessor(i,move),(depth-1))[0] for move in moves]
-          minScore=min(scores)
-          worstIndices = [index for index in range(len(scores)) if scores[index] == minScore]
-          chosenIndex = random.choice(worstIndices)
-          gameState=gameState.generateSuccessor(i,moves[chosenIndex])   #update the gameStatee with the minimizing choice for agent i.
+    def minFunction(self,gameState,agent, depth):  
+        if depth==0 or gameState.isWin() or gameState.isLose():
+          return self.evaluationFunction(gameState), "noMove"
+        moves=gameState.getLegalActions(agent) #get legal actions.
+        scores=[]
+        if(agent!=gameState.getNumAgents()-1):
+          scores =[self.minFunction(gameState.generateSuccessor(agent,move),agent+1,depth) for move in moves]
+        else:
+          scores =[self.maxFunction(gameState.generateSuccessor(agent,move),(depth-1))[0] for move in moves]
+        minScore=min(scores)
+        worstIndices = [index for index in range(len(scores)) if scores[index] == minScore]
+        chosenIndex = worstIndices[0]
         return minScore
 
 

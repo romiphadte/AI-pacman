@@ -21,6 +21,7 @@ Pacman agents (in searchAgents.py).
 import util
 import sys
 import copy
+import pdb 
 
 class SearchProblem:
     """
@@ -146,41 +147,62 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     explored = []
     paths = {}
     totalCost = {}
+    paths[problem.getStartState()]=list()
+    totalCost[problem.getStartState()]=0
+
+    def isBestCostforState(cost,state):
+        for n in frontier.heap:
+            if n[2] == state:
+                if (n[2] in totalCost.keys()) and (totalCost[n[2]]> cost):
+                    frontier.heap.remove(n)
+                    return True
+                else:
+                    return False
+        return True
+
     while not frontier.isEmpty():
         s = frontier.pop()
-        if problem.isGoalState(s[0]):
+        if problem.isGoalState(s):
             return paths[s]
-        if len(s) == 3:
-            explored.append(s[0])
-            successors = problem.getSuccessors(s[0])
-        else:
-            explored.append(s)
-            successors = problem.getSuccessors(s)
+        explored.append(s)
+        successors = problem.getSuccessors(s)
         for successor in successors:
-            if successor[0] not in explored:
-                if s in paths.keys():
-                    paths[successor] = list(paths[s]) + [successor[1]]
-                    totalCost[successor] = totalCost[s] + successor[2]
-                else:
-                    paths[successor] = [successor[1]]
-                    totalCost[successor] = successor[2]
-                insertNodeIntoPriorityQueue(frontier, successor, heuristic, problem, totalCost)
+            successorState=successor[0]
+            move=successor[1]
+            cost=successor[2]
+            if (successorState not in explored and isBestCostforState(totalCost[s]+cost,successorState)):
+                paths[successorState] = list(paths[s]) + [move]
+                totalCost[successorState] = totalCost[s] + cost 
+                frontier.push(successorState, heuristic(successorState, problem) + totalCost[successorState])
     return []
 
-def insertNodeIntoPriorityQueue(queue, node, heuristic, problem, totalCost):
-    shouldAdd = removeNodeInQueueIfExists(queue, node, totalCost)
-    if shouldAdd:
-        queue.push(node, heuristic(node[0], problem) + totalCost[node])
+#def insertNodeIntoPriorityQueue(queue, node, heuristic, problem, totalCost):
+    #shouldAdd = removeNodeInQueueIfExists(queue, node, totalCost)
+    #if shouldAdd:
+#    queue.push(node, heuristic(node, problem) + totalCost[node])
+# def isBestCostforState(cost,state,problem,totalCost):
+#     for n in queue.heap:
+#         if n[2] == node 
+#             if totalCost.keys and totalCost[n[2]]> cost:
+#                 queue.heap.remove(n)
+#                 queue.push(state, heuristic(state,problem)+totalCost[node])
+#                 return True
+#             else:
+#                 return False
 
-def removeNodeInQueueIfExists(queue, node, totalCost):
-    for n in queue.heap:
-        if n[2][0] == node[0]:
-            if n[2] in totalCost.keys() and totalCost[n[2]] > totalCost[node]:
-                queue.heap.remove(n)
-                return True
-            else:
-                return False
-    return True
+
+
+# def removeNodeInQueueIfExists(queue, node, totalCost):
+#     for n in queue.heap: 
+#         if n[2] == node:
+#             pdb.set_trace()
+#             if n[2] in totalCost.keys() and totalCost[n[2]] > totalCost[node]:
+#                 pdb.set_trace()
+#                 queue.heap.remove(n)
+#                 return True
+#             else:
+#                 return False
+#     return True
 
 # Abbreviations
 bfs = breadthFirstSearch

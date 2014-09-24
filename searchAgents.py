@@ -41,6 +41,7 @@ from game import Actions
 import util
 import time
 import search
+import pdb
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -340,10 +341,30 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    def maxDistance(points):
+        maxD=0
+        for i in range(len(points)):
+            for j in range(i,len(points)):
+                max(maxD, util.manhattanDistance(points[i],points[j]))
+        return maxD
+
+    totalDistance=0
+
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
     "*** YOUR CODE HERE ***"
-    return 0
+    pacmanPosition=state[0]
+    newCorners=state[1]
+    totalDistance=0
+    while len(newCorners)>0:
+        distances=[util.manhattanDistance(pacmanPosition,corner) for corner in newCorners]
+        minDistance=min(distances)
+        totalDistance+=minDistance
+        bestIndices = [index for index in range(len(distances)) if distances[index] == minDistance]
+        chosenIndex = bestIndices[0] # Pick first among the best in case there is a tie.
+        pacmanPosition=newCorners[chosenIndex]
+        newCorners=[newCorners[index] for index in range(len(newCorners)) if index!=chosenIndex] 
+    return totalDistance - maxDistance(state[1])
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -436,8 +457,60 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
+
     "*** YOUR CODE HERE ***"
-    return 0
+
+    return len(foodGrid.asList())
+    def maxDistance(points):
+        maxD=0
+        for i in range(len(points)):
+            for j in range(i,len(points)):
+                max(maxD, util.manhattanDistance(points[i],points[j]))
+        return maxD
+
+    totalDistance=0
+
+    corners = foodGrid.asList()# These are the corner coordinates
+    "*** YOUR CODE HERE ***"
+    pacmanPosition=state[0]
+    newCorners=corners
+    totalDistance=0
+    maxD=0
+    if len(corners)>1:
+        maxD=maxDistance(corners)
+
+    while len(newCorners)>0:
+        distances=[util.manhattanDistance(pacmanPosition,corner) for corner in newCorners]
+        minDistance=min(distances)
+        totalDistance+=minDistance
+        bestIndices = [index for index in range(len(distances)) if distances[index] == minDistance]
+        chosenIndex = bestIndices[0] # Pick first among the best in case there is a tie.
+        pacmanPosition=newCorners[chosenIndex]
+        newCorners=[newCorners[index] for index in range(len(newCorners)) if index!=chosenIndex]
+    print totalDistance-maxD
+    return totalDistance - maxD 
+
+
+
+    # pacmanPosition=position
+    # newCorners=foodGrid.asList()
+    # totalDistance=0
+
+    # maxDistance=0
+    # while len(newCorners)>0:
+    #     distances=[util.manhattanDistance(pacmanPosition,corner) for corner in newCorners]
+    #     minDistance=min(distances)
+    #     maxDistance=max(max(distances),maxDistance)
+    #     totalDistance+=minDistance
+    #     bestIndices = [index for index in range(len(distances)) if distances[index] == minDistance]
+    #     chosenIndex = bestIndices[0] # Pick first among the best in case there is a tie.
+    #     pacmanPosition=newCorners[chosenIndex]
+    #     newCorners=[newCorners[index] for index in range(len(newCorners)) if index!=chosenIndex]
+    # print (totalDistance-maxDistance) 
+    # if (totalDistance==maxDistance and totalDistance!=0):
+    #     return 0.5
+    # return totalDistance - maxDistance
+    return len(foodGrid.asList())
 
 def mazeDistance(point1, point2, gameState):
     """

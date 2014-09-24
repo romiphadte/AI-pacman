@@ -271,7 +271,6 @@ class PacmanSearchTest(testClasses.TestCase):
         self.searchProblemClassName = testDict.get('searchProblemClass', 'PositionSearchProblem')
         self.heuristicName = testDict.get('heuristic', None)
 
-
     def getSolInfo(self, search, searchAgents):
         alg = getattr(search, self.alg)
         lay = layout.Layout([l.strip() for l in self.layout_text.split('\n')])
@@ -611,10 +610,6 @@ class HeuristicGrade(testClasses.TestCase):
         handle.write('# File intentionally blank.\n')
         handle.close()
         return True
-
-
-
-
 
 # template = """class: "ClosestDotTest"
 #
