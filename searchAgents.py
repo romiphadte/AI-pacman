@@ -460,7 +460,12 @@ def foodHeuristic(state, problem):
 
     "*** YOUR CODE HERE ***"
 
-    return len(foodGrid.asList())
+    maxDistance=0
+    for i in foodGrid.asList():
+        maxDistance=max(maxDistance,util.manhattanDistance(position,i))
+    return maxDistance
+
+
     def maxDistance(points):
         maxD=0
         for i in range(len(points)):

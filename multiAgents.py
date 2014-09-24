@@ -186,7 +186,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         minScore=min(scores)
         worstIndices = [index for index in range(len(scores)) if scores[index] == minScore]
         chosenIndex = worstIndices[0]
-        return minScore
+        return minScore, moves[chosenIndex]
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
