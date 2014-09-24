@@ -175,35 +175,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 totalCost[successorState] = totalCost[s] + cost 
                 frontier.push(successorState, heuristic(successorState, problem) + totalCost[successorState])
     return []
-
-#def insertNodeIntoPriorityQueue(queue, node, heuristic, problem, totalCost):
-    #shouldAdd = removeNodeInQueueIfExists(queue, node, totalCost)
-    #if shouldAdd:
-#    queue.push(node, heuristic(node, problem) + totalCost[node])
-# def isBestCostforState(cost,state,problem,totalCost):
-#     for n in queue.heap:
-#         if n[2] == node 
-#             if totalCost.keys and totalCost[n[2]]> cost:
-#                 queue.heap.remove(n)
-#                 queue.push(state, heuristic(state,problem)+totalCost[node])
-#                 return True
-#             else:
-#                 return False
-
-
-
-# def removeNodeInQueueIfExists(queue, node, totalCost):
-#     for n in queue.heap: 
-#         if n[2] == node:
-#             pdb.set_trace()
-#             if n[2] in totalCost.keys() and totalCost[n[2]] > totalCost[node]:
-#                 pdb.set_trace()
-#                 queue.heap.remove(n)
-#                 return True
-#             else:
-#                 return False
-#     return True
-
+    
 # Abbreviations
 bfs = breadthFirstSearch
 astar = aStarSearch
